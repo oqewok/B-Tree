@@ -1,0 +1,30 @@
+8
+E:/B/B
+E:/
+E:/Alpha
+E:/Alpha/Floating1
+E:/Alpha/Floating2
+E:/Alpha/Nothing
+E:/Alpha/Nothing/123
+E:/Alpha/Nothing/tmp
+E:/Pictures/2017/February
+E:/Music/
+E:/Music/Bach
+E:/Music/In Flames
+E:/Music/In Flames/Clayman
+E:/Music/In Flames/Siren Charms
+E:/Music/In Flames/A Sense of Purpose
+E:/Music/In Flames/Battles
+E:/Music/Billy Talent
+E:/Music/Billy Talent/I
+E:/Music/Billy Talent/II
+E:/Music/Billy Talent/III
+E:/Music/Billy Talent/Dead Silence
+E:/Music/Billy Talent/Afraid Of Heights
+E:/Music/Placebo
+E:/Pictures
+E:/Pictures/2016
+E:/Pictures/2016/December
+E:/Pictures/2016/October
+E:/Pictures/2017
+E:/Pictures/2017/January
