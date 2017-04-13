@@ -37,17 +37,18 @@ public class ConsoleWindow extends JFrame {
 
     private final JTextArea textAreaConsole;
     private JTextField txtFieldElementNum;
-    private JTextField txtCurrentOrder;
-    private JTextField txtNewOrder;
+    private JTextField txtCurrentParameter;
+    private JTextField txtNewParameter;
     private JTextField txtValueToAdd;
-    private JLabel lblCurentOrder;
+    private JLabel lblCurentParameter;
     private JLabel lblElementNum;
     private JLabel lblNewOrder;
 
     //region JButtons
+    private JButton btnNewBTree;
     private JButton btnLoadBTree;
     private JButton btnSaveBTree;
-    private JButton btnApplyOrder;
+    private JButton btnApplyParameter;
     private JButton btnShowBTree;
     private JButton btnClearTextArea;
     private JButton btnAddValue;
@@ -65,7 +66,7 @@ public class ConsoleWindow extends JFrame {
 
     //region Methods
     private void PrintBTree(){
-        textAreaConsole.append("\n" + "B-Tree из " + _BTree.size() + " с макс. кол-вом элементов узлов " + _BTree.order()*2 + ".\n" + _BTree.toString());
+        textAreaConsole.append("\n" + "B-Tree из " + _BTree.size() + " элементов с параметром " + (_BTree.order()+1) + ".\n" + _BTree.toString());
     }
 
     private void RefreshComboBox(){
@@ -91,7 +92,7 @@ public class ConsoleWindow extends JFrame {
         if ( fc.showSaveDialog(null) == JFileChooser.APPROVE_OPTION ) {
             try ( FileWriter fw = new FileWriter(fc.getSelectedFile())) {
                 StringBuilder sb = new StringBuilder();
-                sb.append(_BTree.order());
+                sb.append(_BTree.order()+1);
                 sb.append("\n");
 
                 Collection<String> tmpCol = _BTree.toCollection();
@@ -120,6 +121,10 @@ public class ConsoleWindow extends JFrame {
         getContentPane().setLayout(null);
 
 
+        btnNewBTree = new JButton("Новое дерево");
+        btnNewBTree.setBounds(          textAreaSizeX + defaultShiftX, defaultShiftY - 30,
+                                        buttonWidth + 70, buttonHeight);
+
         btnLoadBTree = new JButton("Загрузить");
         btnLoadBTree.setBounds(         textAreaSizeX + defaultShiftX, defaultShiftY,
                                         buttonWidth + 70, buttonHeight);
@@ -129,9 +134,9 @@ public class ConsoleWindow extends JFrame {
         btnSaveBTree.setBounds(         textAreaSizeX + defaultShiftX, buttonHeight + 40,
                                         buttonWidth + 70, buttonHeight);
 
-        txtCurrentOrder = new JTextField();
-        txtCurrentOrder.setEditable(false);
-        txtCurrentOrder.setBounds(      textAreaSizeX + defaultShiftX, 12 * defaultShiftY,
+        txtCurrentParameter = new JTextField();
+        txtCurrentParameter.setEditable(false);
+        txtCurrentParameter.setBounds(      textAreaSizeX + defaultShiftX, 12 * defaultShiftY,
                                         buttonWidth - 25, buttonHeight);
 
         txtFieldElementNum = new JTextField();
@@ -139,10 +144,10 @@ public class ConsoleWindow extends JFrame {
         txtFieldElementNum.setBounds(   textAreaSizeX + 2 * defaultShiftX + 80, 12 * defaultShiftY,
                                         buttonWidth - 25, buttonHeight);
 
-        lblCurentOrder = new JLabel("Порядок");
-        lblCurentOrder.setBounds(       textAreaSizeX + defaultShiftX, 12 * defaultShiftY + 18,
+        lblCurentParameter = new JLabel("Параметр");
+        lblCurentParameter.setBounds(       textAreaSizeX + defaultShiftX, 12 * defaultShiftY + 18,
                                         buttonWidth - 25, buttonHeight);
-        getContentPane().add(lblCurentOrder);
+        getContentPane().add(lblCurentParameter);
 
         lblElementNum = new JLabel("Элементов");
         lblElementNum.setBounds(        textAreaSizeX + 2 * defaultShiftX + 80, 12 * defaultShiftY + 18,
@@ -150,18 +155,18 @@ public class ConsoleWindow extends JFrame {
         getContentPane().add(lblElementNum);
 
 
-        txtNewOrder = new JTextField();
-        txtNewOrder.setBounds(          textAreaSizeX + defaultShiftX, 10 * defaultShiftY + 18,
+        txtNewParameter = new JTextField();
+        txtNewParameter.setBounds(          textAreaSizeX + defaultShiftX, 10 * defaultShiftY + 18,
                                         buttonWidth - 35, buttonHeight);
 
-        lblNewOrder = new JLabel("Порядок");
+        lblNewOrder = new JLabel("Параметр");
         getContentPane().add(lblNewOrder);
         lblNewOrder.setBounds(          textAreaSizeX + defaultShiftX, 10 * defaultShiftY + 18 * 2,
                                         buttonWidth - 25, buttonHeight);
 
 
-        btnApplyOrder = new JButton("Изменить");
-        btnApplyOrder.setBounds(        textAreaSizeX + 2 * defaultShiftX + 55, 10 * defaultShiftY + 18,
+        btnApplyParameter = new JButton("Изменить");
+        btnApplyParameter.setBounds(        textAreaSizeX + 2 * defaultShiftX + 55, 10 * defaultShiftY + 18,
                                         buttonWidth, buttonHeight);
 
 
@@ -194,6 +199,33 @@ public class ConsoleWindow extends JFrame {
 
         getContentPane().add(comboBoxValues);
 
+        //JButton btnNewBTree;
+        getContentPane().add(btnNewBTree);
+        btnNewBTree.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                try {
+                    //Формируем дерево
+                    _BTree = new BTree<>();
+
+                    dirDescriptor = new DirectoryDescriptor();
+
+                    //Выводим информацию о нем
+                    txtCurrentParameter.setText(String.valueOf(_BTree.order() + 1));
+                    txtFieldElementNum.setText(String.valueOf(_BTree.size()));
+                    //Заносим в отображаемый список все файлы и папки
+                    RefreshComboBox();
+                    txtValueToAdd.setText(null);
+
+                }
+                catch (Exception ex) {
+                    JOptionPane.showMessageDialog(null, "Ошибка создания");
+                }
+            }
+        });
+
+
+
         //JButton btnLoadBTree;
         getContentPane().add(btnLoadBTree);
         btnLoadBTree.addActionListener(new ActionListener() {
@@ -211,11 +243,12 @@ public class ConsoleWindow extends JFrame {
                         dirDescriptor = new DirectoryDescriptor(absolutePath);
 
                         //Берем порядок и список всех директорий
-                        int tmpOrder = dirDescriptor.getOrder();
+                        int tmpDegree = dirDescriptor.getOrder();
+                        tmpDegree--;
                         ArrayList<String> tmpList = dirDescriptor.getList();
 
                         //Формируем дерево
-                        _BTree = new BTree<>(tmpOrder);
+                        _BTree = new BTree<>(tmpDegree);
 
                         Iterator<String> iter = tmpList.iterator();
                         while (iter.hasNext()){
@@ -223,7 +256,7 @@ public class ConsoleWindow extends JFrame {
                         }
 
                         //Выводим информацию о нем
-                        txtCurrentOrder.setText(String.valueOf(_BTree.order()));
+                        txtCurrentParameter.setText(String.valueOf(_BTree.order() + 1));
                         txtFieldElementNum.setText(String.valueOf(_BTree.size()));
 
                         //Заносим в отображаемый список все файлы и папки
@@ -248,23 +281,36 @@ public class ConsoleWindow extends JFrame {
         });
 
 
-        //JButton btnApplyOrder;
-        getContentPane().add(btnApplyOrder);
-        btnApplyOrder.addActionListener(new ActionListener() {
+        //JButton btnApplyParameter;
+        getContentPane().add(btnApplyParameter);
+        btnApplyParameter.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 try {
-                    int newOrder = Integer.parseInt(txtNewOrder.getText());
+                    if (Integer.parseInt(txtNewParameter.getText()) < 2){
+                        JOptionPane.showMessageDialog(null, "Невозможно применить данное значение, параметр > 2.");
+                        return;
+                    }
+                    int newDegree = Integer.parseInt(txtNewParameter.getText());
+                    newDegree--;
                     ArrayList<String> tmpList = dirDescriptor.getList();
-                    dirDescriptor.setOrder(newOrder);
+                    dirDescriptor.setOrder(newDegree);
+
+                    Collection<String> tmpAllElements = _BTree.toCollection();
 
                     _BTree = new BTree<>(dirDescriptor.getOrder());
-                    Iterator<String> iter = tmpList.iterator();
+
+                    Iterator<String> iter = null;
+                    if (!tmpAllElements.isEmpty()){
+                        iter = tmpAllElements.iterator();
+                    }
+
+                    if (iter!=null)
                     while (iter.hasNext()){
                         _BTree.add(iter.next());
                     }
 
-                    txtCurrentOrder.setText(String.valueOf(_BTree.order()));
+                    txtCurrentParameter.setText(String.valueOf(_BTree.order() + 1));
                     txtFieldElementNum.setText(String.valueOf(_BTree.size()));
 
                     RefreshComboBox();
@@ -287,6 +333,8 @@ public class ConsoleWindow extends JFrame {
                     JOptionPane.showMessageDialog(null, "Ошибка отображения");
                 }
             }
+
+
         });
 
         //JButton btnClearTextArea;
@@ -297,7 +345,7 @@ public class ConsoleWindow extends JFrame {
                 try {
                     textAreaConsole.setText(null);
                     txtValueToAdd.setText(null);
-                    txtNewOrder.setText(null);
+                    txtNewParameter.setText(null);
                 }
                 catch (Exception ex) {
                     JOptionPane.showMessageDialog(null, "Ошибка очистки");
@@ -323,7 +371,7 @@ public class ConsoleWindow extends JFrame {
                     JOptionPane.showMessageDialog(null, "Ошибка добавления элемента");
                 }
                 try{
-                    txtCurrentOrder.setText(String.valueOf(_BTree.order()));
+                    txtCurrentParameter.setText(String.valueOf(_BTree.order() + 1));
                     txtFieldElementNum.setText(String.valueOf(_BTree.size()));
                     RefreshComboBox();
                 }
@@ -348,7 +396,7 @@ public class ConsoleWindow extends JFrame {
                 }
 
                 try{
-                    txtCurrentOrder.setText(String.valueOf(_BTree.order()));
+                    txtCurrentParameter.setText(String.valueOf(_BTree.order()));
                     txtFieldElementNum.setText(String.valueOf(_BTree.size()));
                     RefreshComboBox();
                 }
@@ -358,10 +406,10 @@ public class ConsoleWindow extends JFrame {
             }
         });
 
-        //txtCurrentOrder
-        txtCurrentOrder.setHorizontalAlignment(txtCurrentOrder.CENTER);
-        getContentPane().add(txtCurrentOrder);
-        txtCurrentOrder.setDocument(new PlainDocument() {
+        //txtCurrentParameter
+        txtCurrentParameter.setHorizontalAlignment(txtCurrentParameter.CENTER);
+        getContentPane().add(txtCurrentParameter);
+        txtCurrentParameter.setDocument(new PlainDocument() {
             @Override
             public void insertString(int offset, String str, AttributeSet attr) throws BadLocationException {
                 if (str == null)
@@ -386,10 +434,10 @@ public class ConsoleWindow extends JFrame {
             }
         });
 
-        //txtNewOrder
-        txtNewOrder.setHorizontalAlignment(txtNewOrder.CENTER);
-        getContentPane().add(txtNewOrder);
-        txtNewOrder.setDocument(new PlainDocument() {
+        //txtNewParameter
+        txtNewParameter.setHorizontalAlignment(txtNewParameter.CENTER);
+        getContentPane().add(txtNewParameter);
+        txtNewParameter.setDocument(new PlainDocument() {
             @Override
             public void insertString(int offset, String str, AttributeSet attr) throws BadLocationException {
                 if (str == null)

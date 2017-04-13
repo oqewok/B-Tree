@@ -29,8 +29,7 @@ public class BTree<T extends Comparable<T>> implements ITree<T> {
 
     /**
      *
-     * Конструктор для BTree, order означает минимальное кол-во ключей
-     * вне некорневого узла
+     * Конструктор для BTree, order означает минимальное кол-во ключей, кроме корневого
      *
      * @param order
      *            порядок BTree.
